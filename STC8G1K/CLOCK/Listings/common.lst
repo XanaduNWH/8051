@@ -1,0 +1,62 @@
+C51 COMPILER V9.54   COMMON                                                                12/05/2021 16:18:10 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE COMMON
+OBJECT MODULE PLACED IN .\Objects\common.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE common.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\co
+                    -mmon.lst) TABS(2) OBJECT(.\Objects\common.obj)
+
+line level    source
+
+   1          #include "Includes.h"
+   2          
+   3          void delay5us(void)   //5微秒@6.000MHz
+   4          {
+   5   1        AUXR |= 0x80;   //定时器时钟1T模式
+   6   1        TMOD &= 0xF0;   //设置定时器模式
+   7   1        TL0 = 0xE2;     //设置定时初值
+   8   1        TH0 = 0xFF;     //设置定时初值
+   9   1        TF0 = 0;        //清除TF0标志
+  10   1        TR0 = 1;        //定时器0开始计时
+  11   1        while(TF0==0);  //等待计时器结束
+  12   1        TR0 = 0;        //停止计时器
+  13   1      }
+  14          
+  15          void delayms(WORD ms)   //1毫秒@6.000MHz
+  16          {
+  17   1        AUXR |= 0x80;   //定时器时钟1T模式
+  18   1        TMOD &= 0xF0;   //设置定时器模式
+  19   1        for(;ms>0;ms--)
+  20   1        {
+  21   2          TL0 = 0x90;   //设置定时初值
+  22   2          TH0 = 0xE8;   //设置定时初值
+  23   2          TF0 = 0;    //清除TF0标志
+  24   2          TR0 = 1;    //定时器0开始计时
+  25   2          while(TF0==0);
+  26   2          TR0 = 0;
+  27   2        }
+  28   1      }
+  29          
+  30          void Timer10ms(void)    //10毫秒@6.000MHz
+  31          {
+  32   1        AUXR |= 0x40;   //定时器时钟1T模式
+  33   1        TMOD &= 0x0F;   //设置定时器模式
+  34   1        TL1 = 0xA0;   //设置定时初始值
+  35   1        TH1 = 0x15;   //设置定时初始值
+  36   1        TF1 = 0;    //清除TF1标志
+  37   1        TR1 = 1;    //定时器1开始计时
+  38   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     77    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

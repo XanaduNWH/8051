@@ -1,0 +1,11 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\common.obj",
+".\Objects\TM1650.obj",
+".\Objects\I2C.obj",
+".\Objects\DS3231.obj",
+".\Objects\key.obj" 
+TO ".\Objects\clock" 
+PRINT(".\Listings\clock.m51") RAMSIZE(256) 
+CODE( 0X0000-0X1FF8 )
+XDATA( 0X0000-0X03FF )

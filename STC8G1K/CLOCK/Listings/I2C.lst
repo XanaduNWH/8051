@@ -1,0 +1,86 @@
+C51 COMPILER V9.54   I2C                                                                   12/05/2021 16:18:10 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE I2C
+OBJECT MODULE PLACED IN .\Objects\I2C.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE I2C.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\I2C.l
+                    -st) TABS(2) OBJECT(.\Objects\I2C.obj)
+
+line level    source
+
+   1          #include "Includes.h"
+   2          
+   3          
+   4          void I2C_Wait()
+   5          {
+   6   1        while (!(I2CMSST & 0x40));
+   7   1        I2CMSST &= ~0x40;
+   8   1      }
+   9          
+  10          void I2C_Init()
+  11          {
+  12   1        I2CCFG = 0xe0;      //使能I2C主机模式
+  13   1        I2CMSST = 0x00;
+  14   1      }
+  15          
+  16          void I2C_Start()
+  17          {
+  18   1        I2CMSCR = 0x01;     //发送START命令
+  19   1        I2C_Wait();
+  20   1      }
+  21          
+  22          void I2C_SendData(char dat)
+  23          {
+  24   1        I2CTXD = dat;       //写数据到数据缓冲区
+  25   1        I2CMSCR = 0x02;     //发送SEND命令
+  26   1        I2C_Wait();
+  27   1      }
+  28          
+  29          void I2C_RecvACK()
+  30          {
+  31   1        I2CMSCR = 0x03;     //发送读ACK命令
+  32   1        I2C_Wait();
+  33   1      }
+  34          
+  35          u8 I2C_RecvData()
+  36          {
+  37   1        I2CMSCR = 0x04;     //发送RECV命令
+  38   1        I2C_Wait();
+  39   1        return I2CRXD;
+  40   1      }
+  41          
+  42          void I2C_SendACK()
+  43          {
+  44   1        I2CMSST = 0x00;     //设置ACK信号
+  45   1        I2CMSCR = 0x05;     //发送ACK命令
+  46   1        I2C_Wait();
+  47   1      }
+  48          
+  49          void I2C_SendNAK()
+  50          {
+  51   1        I2CMSST = 0x01;     //设置NAK信号
+  52   1        I2CMSCR = 0x05;     //发送ACK命令
+  53   1        I2C_Wait();
+  54   1      }
+C51 COMPILER V9.54   I2C                                                                   12/05/2021 16:18:10 PAGE 2   
+
+  55          
+  56          void I2C_Stop()
+  57          {
+  58   1        I2CMSCR = 0x06;     //发送STOP命令
+  59   1        I2C_Wait();
+  60   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    112    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

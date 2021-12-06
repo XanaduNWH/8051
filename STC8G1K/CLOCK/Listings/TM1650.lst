@@ -1,0 +1,118 @@
+C51 COMPILER V9.54   TM1650                                                                12/05/2021 16:18:10 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE TM1650
+OBJECT MODULE PLACED IN .\Objects\TM1650.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE TM1650.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\TM
+                    -1650.lst) TABS(2) OBJECT(.\Objects\TM1650.obj)
+
+line level    source
+
+   1          #include "Includes.h"
+   2          
+   3          u8 code matrix[10] = {
+   4              0x3F, // 0
+   5              0x06, // 1
+   6              0x5B, // 2
+   7              0x4F, // 3
+   8              0x66, // 4
+   9              0x6D, // 5
+  10              0x7D, // 6
+  11              0x27, // 7
+  12              0x7F, // 8
+  13              0x6F // 9
+  14          };
+  15          
+  16          void TM1650_Start(void)
+  17          {
+  18   1        CLK=1;
+  19   1        DIO=1;
+  20   1        delay5us();delay5us();
+  21   1        DIO=0;
+  22   1        delay5us();delay5us();
+  23   1      }
+  24          
+  25          void TM1650_Stop(void)
+  26          {
+  27   1         CLK=1; 
+  28   1         DIO=0; delay5us();delay5us();
+  29   1         DIO=1; delay5us(); delay5us();
+  30   1      }
+  31          
+  32          void TM1650_ACK(void)
+  33          {
+  34   1        // while(DIO);
+  35   1        CLK=1; delay5us();
+  36   1      //  DIO=1; delay5us();delay5us();
+  37   1        CLK=0; delay5us();
+  38   1        
+  39   1      }
+  40          
+  41          bit TM1650_send_data(u8 dat)
+  42          {
+  43   1        u8 i;
+  44   1      
+  45   1        CLK=0;
+  46   1        for(i=0;i<8;i++)
+  47   1        {
+  48   2          DIO = ((dat&0x80) == 0x80);
+  49   2          CLK=0; delay5us();
+  50   2          CLK=1; delay5us();
+  51   2          CLK=0; delay5us();
+  52   2      
+  53   2          dat<<=1;
+  54   2        }
+C51 COMPILER V9.54   TM1650                                                                12/05/2021 16:18:10 PAGE 2   
+
+  55   1        return DIO;
+  56   1      }
+  57          
+  58          void TM1650_write_data(u8 add, u8 dat)
+  59          {
+  60   1        TM1650_Start();
+  61   1        TM1650_send_data(add);
+  62   1        TM1650_ACK();
+  63   1        TM1650_send_data(dat);
+  64   1        TM1650_ACK();
+  65   1        TM1650_Stop();
+  66   1      }
+  67          
+  68          void TM1650_Initialize()
+  69          {
+  70   1        TM1650_write_data(0x48,0x11);
+  71   1      
+  72   1        TM1650_write_data(0x68,0xFF);
+  73   1        TM1650_write_data(0x6A,0xFF);
+  74   1        TM1650_write_data(0x6C,0xFF);
+  75   1        TM1650_write_data(0x6E,0xFF);
+  76   1      
+  77   1      }
+  78          
+  79          void TM1650_show_clock(u8* rtc_buf,bit dot)
+  80          {
+  81   1        u8 idata min_l,min_h,hour_l,hour_h;
+  82   1      
+  83   1        min_l = 0x0F&rtc_buf[0];
+  84   1        min_h = rtc_buf[0]>>4;
+  85   1        hour_l = 0x0F&rtc_buf[1];
+  86   1        hour_h = rtc_buf[1]>>4;
+  87   1      
+  88   1        TM1650_write_data(0x68, (hour_h ? matrix[hour_h] : 0x00));
+  89   1        TM1650_write_data(0x6A, (matrix[hour_l] | (dot?0x80:0x00)));
+  90   1        TM1650_write_data(0x6C, matrix[min_h]);
+  91   1        TM1650_write_data(0x6E, matrix[min_l]);
+  92   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    259    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       4
+   IDATA SIZE       =   ----       4
+   BIT SIZE         =   ----       1
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,186 @@
+C51 COMPILER V9.54   MAIN                                                                  12/05/2021 16:18:10 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "Includes.h"
+   2          
+   3          #define ENI2C 0x80
+   4          #define MSSL 0x40
+   5          #define MSSPEED 0x02
+   6          #define ET2         0x04
+   7          
+   8          u8 xdata cnt=0,num=0,rtc_buf[2],rtc_tmp[2],rtc_ctrl[2];
+   9          bit idata dot,time_10ms_ok,wakeup,lcdon = 1;
+  10          extern u8 code matrix[10];
+  11          
+  12          void tm1_isr() interrupt 3    // 定时器10ms中断服务
+  13          {
+  14   1        time_10ms_ok = 1;
+  15   1        cnt++;
+  16   1        Read_Bytes_From_DS3231_RTC(0x01, &rtc_buf, 2);
+  17   1      }
+  18          
+  19          void exint4() interrupt 16
+  20          {
+  21   1        INTCLKO &= 0xBF;           //若需要手动清除中断标志,可先关闭中断,此时系统会自动清除内部的中断标志
+  22   1        wakeup=1;
+  23   1        INTCLKO |= 0x40;           //然后再开中断即可
+  24   1      }
+  25          
+  26          void main()
+  27          {
+  28   1        u8 xdata key,key_buf=0,MenuIndex=0,SettingIndex=0,dig[4];
+  29   1      
+  30   1        P3M0=0x00;
+  31   1        P3M1=0x00;
+  32   1        P5M0=0x00;
+  33   1        P5M1=0x00;
+  34   1      
+  35   1      //  P5PU=0x30;
+  36   1      
+  37   1        P_SW2 = 0x80;
+  38   1        P3PU = 0x0C;
+  39   1      
+  40   1        delayms(100);
+  41   1      
+  42   1        I2C_Init();
+  43   1        TM1650_Initialize();
+  44   1      
+  45   1      /*
+  46   1        rtc_tmp[0] = 0x01;
+  47   1        rtc_tmp[1] = 0x16;
+  48   1        Write_Bytes_To_DS3231_RTC(0x01, rtc_tmp, 2);
+  49   1      */
+  50   1      
+  51   1        INTCLKO |= 0x40;    //(EX4 = 1)使能INT4下降沿中断
+  52   1        ET1 = 1;    //使能定时器1中断
+  53   1        EA = 1;
+  54   1        Timer10ms();
+C51 COMPILER V9.54   MAIN                                                                  12/05/2021 16:18:10 PAGE 2   
+
+  55   1      
+  56   1        while(1)
+  57   1        {
+  58   2      //    PCON = 0x02;
+  59   2      //    _nop_();
+  60   2      //    _nop_();
+  61   2          if (time_10ms_ok){
+  62   3            time_10ms_ok =0;
+  63   3            key = key_read();
+  64   3          }
+  65   2      
+  66   2          if(key){
+  67   3            key_buf=key;
+  68   3          }
+  69   2      
+  70   2          if(MenuIndex==0)      // 显示页面
+  71   2          {
+  72   3            if(key_buf==L_key)
+  73   3            {
+  74   4              MenuIndex = 1;
+  75   4              key_buf = 0;
+  76   4            }
+  77   3            if(key_buf==D_key)
+  78   3            {
+  79   4            // 显示日期
+  80   4            }
+  81   3            if(key_buf==S_key)
+  82   3            {
+  83   4              lcdon = !lcdon;   // 关显示
+  84   4              TM1650_write_data(0x48,(0x10 | lcdon));
+  85   4              //PCON = 0x02;
+  86   4              key_buf = 0;
+  87   4            }
+  88   3            if(cnt>50)
+  89   3            {
+  90   4              dot=!dot;         // 秒点
+  91   4              TM1650_show_clock(rtc_buf,dot);
+  92   4              dig[3] = 0x0F&rtc_buf[0];
+  93   4              dig[2] = rtc_buf[0]>>4;
+  94   4              dig[1] = 0x0F&rtc_buf[1];
+  95   4              dig[0] = rtc_buf[1]>>4;
+  96   4              cnt=0;
+  97   4            }
+  98   3          }
+  99   2      
+ 100   2          if(MenuIndex==1)  // 时间设置
+ 101   2          {
+ 102   3            if(key_buf==L_key)
+ 103   3            {
+ 104   4              rtc_tmp[2] = (dig[0]<<4) + dig[1];
+ 105   4              rtc_tmp[1] = (dig[2]<<4) + dig[3];
+ 106   4              if(((rtc_tmp[0]>>4) > 5) || ((rtc_tmp[0]&0x0F) > 9))
+ 107   4                rtc_tmp[0] = 0x00;
+ 108   4              Write_Bytes_To_DS3231_RTC(0x00, rtc_tmp, 3);
+ 109   4              MenuIndex = 0;
+ 110   4            }
+ 111   3            if(key_buf==D_key) {
+ 112   4              SettingIndex++;
+ 113   4              if(SettingIndex>3){
+ 114   5                SettingIndex=0;
+ 115   5              }
+ 116   4            }
+C51 COMPILER V9.54   MAIN                                                                  12/05/2021 16:18:10 PAGE 3   
+
+ 117   3            if(key_buf==S_key) {
+ 118   4              if(SettingIndex == 0){
+ 119   5                dig[0]++;
+ 120   5                if(dig[0] > 2) {
+ 121   6                  dig[0] = 0;
+ 122   6                }
+ 123   5              }
+ 124   4              if(SettingIndex == 1) {
+ 125   5                dig[1]++;
+ 126   5                if((dig[0] == 2) && (dig[1] > 3)) {
+ 127   6                  dig[1] = 0;
+ 128   6                }
+ 129   5                if(dig[1] > 9) {
+ 130   6                  dig[1] = 0;
+ 131   6                }
+ 132   5              }
+ 133   4              if(SettingIndex == 2){
+ 134   5                dig[2]++;
+ 135   5                if(dig[2] > 5) {
+ 136   6                  dig[2] = 0;
+ 137   6                }
+ 138   5              }
+ 139   4              if(SettingIndex == 3){
+ 140   5                dig[3]++;
+ 141   5                if(dig[3] > 9) {
+ 142   6                  dig[3] = 0;
+ 143   6                }
+ 144   5              }
+ 145   4            }
+ 146   3            key_buf = 0;
+ 147   3      
+ 148   3            TM1650_write_data(0x68, (((SettingIndex == 0) && (cnt>50))?0x00:matrix[dig[0]]));
+ 149   3            TM1650_write_data(0x6A, (((SettingIndex == 1) && (cnt>50))?0x00:matrix[dig[1]]));
+ 150   3            TM1650_write_data(0x6C, (((SettingIndex == 2) && (cnt>50))?0x00:matrix[dig[2]]));
+ 151   3            TM1650_write_data(0x6E, (((SettingIndex == 3) && (cnt>50))?0x00:matrix[dig[3]]));
+ 152   3      
+ 153   3            if(cnt>100) cnt=0;
+ 154   3          }
+ 155   2      
+ 156   2          delayms(25);
+ 157   2        }
+ 158   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    652    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =      8       8
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      4    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

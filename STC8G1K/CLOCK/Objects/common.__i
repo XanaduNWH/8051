@@ -1,0 +1,1 @@
+"common.c" OPTIMIZE (8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\common.lst) TABS (2) OBJECT(.\Objects\common.obj)
