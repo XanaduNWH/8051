@@ -1,7 +1,7 @@
 #ifndef __KEY_H
 #define __KEY_H
 
-sbit KEY = P3^0;
+sbit KEY = P3^1;
 
 #define N_key    0             //ÎÞ¼ü
 #define S_key    1             //µ¥¼ü
