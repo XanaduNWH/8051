@@ -125,3 +125,6 @@ dkms.conf
 *.l1p
 *.l2p
 *.iex
+*.Hades
+*.m51
+*.lst

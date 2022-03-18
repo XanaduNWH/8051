@@ -73,7 +73,6 @@ void TM1650_Initialize()
 	TM1650_write_data(0x6A,0xFF);
 	TM1650_write_data(0x6C,0xFF);
 	TM1650_write_data(0x6E,0xFF);
-
 }
 
 void TM1650_show_clock(u8* rtc_buf,bit dot)
@@ -89,4 +88,35 @@ void TM1650_show_clock(u8* rtc_buf,bit dot)
 	TM1650_write_data(0x6A, (matrix[hour_l] | (dot?0x80:0x00)));
 	TM1650_write_data(0x6C, matrix[min_h]);
 	TM1650_write_data(0x6E, matrix[min_l]);
+}
+
+void TM1650_show_temp(u8* temp)
+{
+	u8 idata temp_1;	// 负号位
+	u8 idata temp_2;	// 温度十位
+	u8 idata temp_3;	// 温度个位
+	u8 idata temp_4;	// 小数位
+
+	temp_1 = 0x80&temp[0];
+	temp_2 = 0;
+	temp_3 = 0x7F&temp[0];
+
+	// 把十位和个位的温度整理出来，不需要除法
+	while(temp_3 > 10)
+	{
+		temp_2++;
+		temp_3 -= 10;
+	}
+
+	/*--------------------------------------------------------------------*/
+	/* --- DS3231的12h寄存器的bit7和bit6存的是温度小数位，bit0到bit5无效 --- */
+	/* --- 12h的数据只有2bit有效数据，用以表示0.25的刻度 --------------------*/
+	/* --- 数码管只有一位留给小数位，所以直接乘3粗略表示0、0.3、0.6、0.9 ---- */
+	/*--------------------------------------------------------------------*/
+	temp_4 = (temp[1]>>6)*3;
+
+	TM1650_write_data(0x68, (temp_1 ? 0x40 : 0x00));
+	TM1650_write_data(0x6A, matrix[temp_2]);
+	TM1650_write_data(0x6C, matrix[temp_3] | 0x80);
+	TM1650_write_data(0x6E, matrix[(temp_4)]);
 }
