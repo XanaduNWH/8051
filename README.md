@@ -4,5 +4,5 @@
 - STC8G1K08/CLOCK  
     一个基于TM1650的小时钟。
 
-- STC8A8K64D4/Tiky_LCD_TEST_board
+- STC8A8K64D4/Tiky_LCD_TEST_board  
     主要为了测试LCD_DMA功能的板子
