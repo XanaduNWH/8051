@@ -313,13 +313,6 @@ void DMA_config(void)
 	DMA_LCM_CR = 0x80;
 }
 
-/*****************************************************************************
- * @name       :void LCM_Interrupt(void)
- * @date       :2018-11-13 
- * @function   :None
- * @parameters :None
- * @retvalue   :
-******************************************************************************/ 
 void LCMIF_DMA_Interrupt(void) interrupt 13
 {
 //	LCMIFSTA = 0x00;

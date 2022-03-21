@@ -23,29 +23,6 @@ sbit LCD_REST = P7^5;					//复位
 sbit LCD_BL = P1^0;
 
 //========================================================================
-//                              定义声明
-//========================================================================
-
-#define LCM_WRITE_CMD()					{EAXSFR(); LCMIFCR = ((LCMIFCR & ~0x07) | 0x84); EAXRAM();}
-#define LCM_WRITE_DAT()					{EAXSFR(); LCMIFCR = ((LCMIFCR & ~0x07) | 0x85); EAXRAM();}
-#define LCM_READ_CMD()					{EAXSFR(); LCMIFCR = ((LCMIFCR & ~0x07) | 0x86); EAXRAM();}
-#define LCM_READ_DAT()					{EAXSFR(); LCMIFCR = ((LCMIFCR & ~0x07) | 0x87); EAXRAM();}
-
-#define SET_LCM_DAT_LOW(n)			{EAXSFR(); LCMIFDATL = (n); EAXRAM();}
-#define SET_LCM_DAT_HIGH(n)			{EAXSFR(); LCMIFDATH = (n); EAXRAM();}
-
-//========================================================================
-//                              常量声明
-//========================================================================
-
-#define	MODE_I8080			0	//I8080模式
-#define	MODE_M6800			1	//M6800模式
-
-#define	BIT_WIDE_8			0	//8位数据宽度
-#define	BIT_WIDE_16			2	//16位数据宽度
-
-
-//========================================================================
 //                              外部声明
 //========================================================================
 

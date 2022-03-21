@@ -32,6 +32,7 @@ void main()
 {
 	u16 xdata Color = BRRED;
 
+	// STC8A8K64D4 除了P3.0和P3.1，所有IO上电后默认都是高阻输入模式，需要上电设置IO工作模式
 	P0M0 = 0x00;
 	P0M1 = 0x00;
 	P1M0 = 0x01;
@@ -45,15 +46,16 @@ void main()
 	P7M0 = 0x00;
 	P7M1 = 0x00;
 
+	// 使能P0和P2口内部上拉
 	P0PU = 0xFF;
 	P2PU = 0xFF;
 
+	// 电平转换速度控制器
 	P0SR = 0x00;
 	P2SR = 0x00;
 	P4SR = 0x1A;
 
-// PWM呼吸灯@P11
-
+	// PWM呼吸灯@P11
 	PWMSET = 0x01;
 	P_SW2 = 0x80;
 	PWM1CR = 0x08;				//PWM1_2/P1.1
@@ -75,12 +77,10 @@ void main()
 	DMA_config();
 	EA = 1;
  	LCD_ILI9806G_Init();
-//	LCD_ST7789_Init();
 
 	while (1)
 	{
 		LCD_Clear(Color);
-		// delayms(500);
 		Display_GB2312_String(0,0,32, "中文测试",~Color,Color);
 		Display_Asc_String(0,48,32, "ASCII_16x32 string", ~Color,Color);
 		Color = ~Color;
