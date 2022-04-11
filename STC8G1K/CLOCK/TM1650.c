@@ -102,7 +102,7 @@ void TM1650_show_temp(u8* temp)
 	temp_3 = 0x7F&temp[0];
 
 	// 把十位和个位的温度整理出来，不需要除法
-	while(temp_3 > 10)
+	while(temp_3 >= 10)
 	{
 		temp_2++;
 		temp_3 -= 10;
