@@ -13,6 +13,8 @@ u8 code matrix[10] = {
     0x6F // 9
 };
 
+WORD init_dig = 0xFF;
+
 void TM1650_Start(void)
 {
 	CLK=1;
@@ -67,12 +69,16 @@ void TM1650_write_data(u8 add, u8 dat)
 
 void TM1650_Initialize()
 {
-	TM1650_write_data(0x48,0x11);
+	TM1650_write_data(0x48,0x41);
 
-	TM1650_write_data(0x68,0xFF);
-	TM1650_write_data(0x6A,0xFF);
-	TM1650_write_data(0x6C,0xFF);
-	TM1650_write_data(0x6E,0xFF);
+	while(init_dig>0){
+		TM1650_write_data(0x68,~init_dig);
+		TM1650_write_data(0x6A,~init_dig);
+		TM1650_write_data(0x6C,~init_dig);
+		TM1650_write_data(0x6E,~init_dig);
+		init_dig <<= 1;
+		delayms(50);
+	}
 }
 
 void TM1650_show_clock(u8* rtc_buf,bit dot)
