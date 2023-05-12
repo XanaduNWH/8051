@@ -48,6 +48,8 @@ void main()
 	P_SW2 = 0x80;
 	P3PU = 0x0C;
 
+	WDT_CONTR = 0x23;
+
 	delayms(100);
 
 	I2C_Init();
@@ -66,6 +68,7 @@ void main()
 
 	while(1)
 	{
+		WDT_CONTR = 0x33;
 //		PCON = 0x02;
 //		_nop_();
 //		_nop_();
