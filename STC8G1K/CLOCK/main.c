@@ -36,7 +36,7 @@ void exint4() interrupt 16
 
 void main()
 {
-	u8 xdata key,key_buf=0,SettingIndex=0,dig[4];
+	u8 xdata key,key_buf=0,SettingIndex=0,dig[4],brightness=1;
 
 	P3M0=0x00;
 	P3M1=0x00;
@@ -95,8 +95,14 @@ void main()
 				}
 				if(key_buf==S_key)
 				{
-					lcdon = !lcdon;		// 关显示
-					TM1650_write_data(0x48,(0x10 | lcdon));
+					if(brightness>4){
+						brightness=0;
+					} else {
+						brightness = (brightness) ? brightness+=3 : 1;
+					}
+					
+					lcdon = (brightness>0);		// 关显示
+					TM1650_write_data(0x48,((brightness<<4) | lcdon));
 					//PCON = 0x02;
 				}
 				key_buf = 0;

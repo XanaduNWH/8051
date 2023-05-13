@@ -69,7 +69,7 @@ void TM1650_write_data(u8 add, u8 dat)
 
 void TM1650_Initialize()
 {
-	TM1650_write_data(0x48,0x41);
+	TM1650_write_data(0x48,0x11);
 
 	while(init_dig>0){
 		TM1650_write_data(0x68,~init_dig);
